@@ -1,5 +1,5 @@
 
-目的是主要分析在runtime中关联对象操作是如何实现的，数据对象时如何保存的。
+主要分析在runtime中关联对象操作是如何实现的，数据对象时如何保存的及关联对象的释放。
 
 ###1、代码举例
 给一个已知的User类添加分类，添加一个`name`属性并关联
@@ -117,7 +117,7 @@
 
 
 大致流程如下图：
-![]()
+![association_store.png](https://raw.githubusercontent.com/Light413/blog/master/img/association_store.png)
 
 
 
@@ -133,13 +133,39 @@
 #####关联对象的释放：
 
 根据关联对象的存储结构我们可以知道，如果要释放一个对象的关联的对象也需要从hash 表中一层一层的给找出来，依次释放。释放操作是在被关联的对象释放时进行的。所以最终也是在`dealloc`方法中调用`void _object_remove_assocations(id object)`实现的。
-依次调用顺序如下：
+
+	void _object_remove_assocations(id object) {
+	    vector< ObjcAssociation,ObjcAllocator<ObjcAssociation> > elements;
+	    {
+	        AssociationsManager manager;
+	        AssociationsHashMap &associations(manager.associations());
+	        if (associations.size() == 0) return;
+	        disguised_ptr_t disguised_object = DISGUISE(object);
+	        AssociationsHashMap::iterator i = associations.find(disguised_object);
+	        if (i != associations.end()) {
+	            // copy all of the associations that need to be removed.
+	            ObjectAssociationMap *refs = i->second;
+	            for (ObjectAssociationMap::iterator j = refs->begin(), end = refs->end(); j != end; ++j) {
+	                elements.push_back(j->second);
+	            }
+	            // remove the secondary table.
+	            delete refs;
+	            associations.erase(i);
+	        }
+	    }
+	    // the calls to releaseValue() happen outside of the lock.
+	    for_each(elements.begin(), elements.end(), ReleaseValue());
+	}
+
+依次调用`_object_remove_assocations `顺序如下：
 
 	1.	- (id)free
 	2.id (*_dealloc)(id) = _object_dispose;
 	3. id object_dispose(id obj)
 	4. void *objc_destructInstance(id obj) 
 	5. void _object_remove_assocations(id object)
+
+通过以上看出`_object_remove_assocations `方法移除了对象所有的关联对象，所以实际操作中不要轻易使用此方法。
 
 ###总结
 以上皆为runtime关联对象如何保存的分析总结，可能有理解的不到位的地方，还在研究中。
