@@ -1,4 +1,3 @@
-
 ###一、MDM介绍
 
  MDM - Moblie Device Management 移动设备管理，目的就是让企业能够方便的管理 iPhone、Pad等移动设备。
@@ -7,8 +6,7 @@
 
 通过MDM能实现以下操作：
 
->
-* 安装和删除一个描述文件
+>* 安装和删除一个描述文件
 * 安装和删除一个配置文件
 * 获取已安装的描述文件列表
 * 获取已安装的配置文件列表
@@ -37,7 +35,7 @@
 
 ###三、MDM工作流程
 引用官网提供的一张图：
-![MDM工作流程](https://raw.githubusercontent.com/Light413/blog/master/img/MDM工作流程.jpg)
+![MDM工作流程](https://github.com/Light413/blog/blob/master/其他/img/MDM工作流程.jpg?raw=true)
 
 从上图可以看出要实现MDM服务须涉及到，苹果推送服务器APNs、自己的或者第三方提供的MDM服务器、受管理的设备。实际中三者之间通过HTTPS相互通信，所以推送和普通APP推送一样必须要有推送证书。没有操作的情况下，除了设备本身和APNs之间保持连接，其他都不在连接状态。各自在系统中的作用如下：
 
@@ -59,37 +57,33 @@
 
 通过以上了解可看出，要实现一个完整的MDM服务，我们需要：制作APNs推送证书、设备安装的配置文件、实现https通信、实现MDM相关协议、学习MDM协议相关命令及使用、一个MDM服务器（这里不作主要叙述，因为这些相关的都是有我们后台做的）。所以接下来的时间我打算依次做以下任务。
 
-* MDM的APNs证书制作
-* 生成mobileconfig配置文件并签名
-* 设备安装mobileconfig配置文件
-* 发送一个简单的指令`DeviceInformation`获取设备信息 
-* 其他几个常用命令介绍
+* [iOS MDM详解（1）— 初识和深入](http://www.jianshu.com/p/6112050ea31a)
+* [iOS MDM详解（2）— 证书的制作](http://www.jianshu.com/p/1d6c861717c6)
+* [iOS MDM详解（3）— 生成mobileconfig配置文件](http://www.jianshu.com/p/2445de9b6115)
+* [iOS MDM详解（4）— 安装mobileconfig配置文件](http://www.jianshu.com/p/05cce15b192e)
+* [iOS MDM详解（5）— 给设备发个指令操作](http://www.jianshu.com/p/23ced86382d9)
 
 
 以上即为MDM服务中几个关键的操作，其他的一些细微的方面的操作以后在慢慢整理。
 
 正常情况下操作我遇到了以下几个问题：
 
->
-问题1、 mobileconfig配置文件安装失败
+>问题1、 mobileconfig配置文件安装失败
 
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;设备在安装过程中，一直提示安装失败！当我想使用抓包工具`Charles`查看时居然安装成功了，关闭软件再次安装还是失败，猜测可能由于`Charles`代理的作用能连接到还处于内网的MDM Server，若直接发布到外网应该能避免这个问题(目前还没有验证？)。
->
-问题2、MDM服务器与APNs无法建立连接，造成一直推送不成功
+        设备在安装过程中，一直提示安装失败！当我想使用抓包工具`Charles`查看时居然安装成功了，关闭软件再次安装还是失败，猜测可能由于`Charles`代理的作用能连接到还处于内网的MDM Server，若直接发布到外网应该能避免这个问题(目前还没有验证？)。
+>问题2、MDM服务器与APNs无法建立连接，造成一直推送不成功
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;推送命令时Java后台一直报错，*`javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: No trusted certificate found`* 后来升级了SKD错误解除。
+      推送命令时Java后台一直报错，*`javax.net.ssl.SSLHandshakeException: sun.security.validator.ValidatorException: No trusted certificate found`* 后来升级了SKD错误解除。
 
 随之又出现错误 *` Software caused connection abort: recv failed`* 后经排查原来连接的是开发环境的地址，mobileconfig配置中有这个配置选项默认是生成环境，通过[identity.apple.com/pushcert](https://identity.apple.com/pushcert)申请的推送证书只能是生成环境的证书，这一点我当时还傻傻的以为生成和推送都一样呢😭。
->
-问题3、命令推送成功后设备没有响应操作或者很慢
+>问题3、命令推送成功后设备没有响应操作或者很慢
 
 命令推送成功了有时没响应，多数都是在MDM Server 与 APNs之间，估计设备没被唤醒或者没有收到指令，APNs 和设备之间由于推送不是那么及时所以会有一定的延时。
 
 当设备与Sever建立连接后，发送命令很快得到了响应。但有时连续几个操作后响应会很慢，`猜测可能设备本身还没来得及处理，具体还的在研究`。
 
 
->
-问题4、想实现APP的静默安装
+>问题4、想实现APP的静默安装
 
 由于我们是企业应用分发，发布一个应用希望所有受控的设备强制安装即不需要弹框提示用户点击确认操作。但是还没有实现，好像安卓的可以，关于iOS 的还在研究。
 
@@ -98,8 +92,3 @@
 ###五、总结
 
 以上为MDM的简单介绍和理解，如果你也熟悉MDM有不恰当的地方谢谢指导，如果你不熟悉刚接触希望能有一点帮助。接下来我会安装以上所述操作步骤开展下一步的工作。
-
-
-
-
-
