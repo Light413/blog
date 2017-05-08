@@ -307,8 +307,14 @@
 我们可以直接修改此XML文件，据此[Configuration Profile Reference](https://developer.apple.com/library/content/featuredarticles/iPhoneConfigurationProfileRef/Introduction/Introduction.html#//apple_ref/doc/uid/TP40010206-CH1-SW1) 可添加其他所需的字段。你也可以在此基础上修改适合为自己的（估计很容易遗漏或出错），我还是喜欢在`iPhone配置使用工具`中操作比较方便。
 
 
-###MDM Sever给生成的配置文件签名
-以上生成的配置文件其实可以直接安装到设备上，如果安装成功后会有一个红色的提示‘未签名’。签名需要以下证书文件：
+###给生成的配置文件签名
+以上生成的配置文件其实可以直接安装到设备上，如果安装成功后会有一个红色的提示‘未签名’如下。<br>
+![Snip20170508_1.png](http://upload-images.jianshu.io/upload_images/1859207-e005c7daaf93a3bb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
+签名要经历两个操作，一、MDM Sever端签名。二、用苹果颁发的证书签名。
+
+#####MDM Sever签名
+需要以下证书文件：
 
 * unsigned.mobileconfig 原始的未签过名的配置文件
 * server.crt 服务器端用于签名的证书
@@ -320,6 +326,42 @@
 
 (以上是Java后台签名的操作过程，我没有验证，在此作为一个操作步骤总结放在这里)。
 
+我猜测MDM Sever的签名只是为了和客户端进行下认证和对描述文件的加密过程，只是让这两个之间相互认知对方，和iOS系统是否承认无关。所以以上操作之后还会提示‘未签名’。（实际测试中这个操作可以省略）。
+
+
+#####苹果证书相关的签名
+以下操作引自 天狐博客，文章地址[http://www.skyfox.org/ios-mobileconfig-sign.html](http://www.skyfox.org/ios-mobileconfig-sign.html)
+
+这个操作有几种方法可供选择，这里我使用了脚本签名。
+
+借助于强大的github,找到了一个python脚本进行签名
+
+地址:[https://github.com/nmcspadden/ProfileSigner](https://github.com/nmcspadden/ProfileSigner)
+
+1.签名一个mobileconfig
+
+profile_signer.py与 mobileconfig 放在同一目录,终端进入目录执行
+
+ `./profile_signer.py -n "3rd Party Mac Developer Application" sign AcrobatPro.mobileconfig AcrobatProSigned.mobileconfig`
+2.加密一个mobileconfig
+
+`
+ ./profile_signer.py -n "3rd Party Mac Developer Application" encrypt AcrobatPro.mobileconfig AcrobatProEnc.mobileconfig`
+3.签名并且加密一个mobileconfig
+
+`
+ ./profile_signer.py -n "3rd Party Mac Developer Application" both AcrobatPro.mobileconfig AcrobatProBoth.mobileconfig`
+"3rd Party Mac Developer Application"为你的证书在钥匙串中的全名,选择证书=>显示简介=>复制常用名称加上引号即可,比如
+
+"iPhone Developer: jakey.shao xxxx@xxx.com"
+
+"iPhone Distribution: Skyfox Network Technology Co., Ltd."
+
+66911171-EE9C-4DB7-BFCE-6564CC1B4E1A如果能正确读取到证书，会提示允许访问钥匙串，点击允许即可！
+
+最终安装提示已验证啦。
+
+![Snip20170508_2.png](http://upload-images.jianshu.io/upload_images/1859207-db213e051ca194a9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ### 至此得到mobileconfig配置文件，交由MDM Sever供设备下载。
 
