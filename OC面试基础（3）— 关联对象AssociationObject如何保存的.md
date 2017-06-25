@@ -117,7 +117,7 @@
 
 
 大致流程如下图：
-![association_store.png](https://raw.githubusercontent.com/Light413/blog/master/img/association_store.png)
+![association_store.png](https://github.com/Light413/blog/blob/master/其他/img/association_store.png?raw=true)
 
 
 

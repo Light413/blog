@@ -85,11 +85,11 @@ python mdm_vendor_sign.py
 
 接下来几乎网上所有的文章都是这样的
 
-![image](https://github.com/Light413/blog/blob/master/img/MDM_Certificate.png?raw=true)
+![image](https://github.com/Light413/blog/blob/master/其他/img/MDM_Certificate.png?raw=true)
 
 双击`MDM_Certificate.pem`安装，查看证书信息如图
 
-![证书-用户ID](https://github.com/Light413/blog/blob/master/img/MDM_Certificate2.png?raw=true)
+![证书-用户ID](https://github.com/Light413/blog/blob/master/其他/img/MDM_Certificate2.png?raw=true)
 
 其中用户ID : `com.apple.mgmt.External.*` 这个很重要，在配置.mobileconfig文件要用到。
 
