@@ -8,9 +8,6 @@
 >  * 对Xcode工具及其他性能优化相关的研究与总结
 >  * 对第三方开源库的源码研究与总结
 >  * 写一个让自己满意的开源库
->  
-> OK，现在万事具备，只差那一份毅力和坚持了。现在是2017.3-27,希望自己接下来能够一直的坚持，坚持学习，坚持总结，坚持写作。
-> [个人总结和学习简书账号](http://www.jianshu.com/u/4dcb43dfe10e)
 
 ![image](https://raw.githubusercontent.com/Light413/images/master/fendou.JPG)
 
